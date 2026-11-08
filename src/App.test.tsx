@@ -58,4 +58,20 @@ describe('App', () => {
     expect(screen.queryByRole('region', { name: 'Funds to consider' })).not.toBeInTheDocument()
     expect(within(tradesTable()!).getByText('VNQ')).toBeInTheDocument()
   })
+
+  it('switches between light, dark and system themes and remembers the choice', async () => {
+    const user = renderApp()
+    const html = document.documentElement
+
+    await user.click(screen.getByRole('button', { name: 'Theme: Match system' }))
+    await user.click(screen.getByRole('menuitemradio', { name: 'Dark' }))
+    expect(html.dataset.theme).toBe('dark')
+    expect(localStorage.getItem('ballast:theme')).toBe('dark')
+
+    await user.click(screen.getByRole('button', { name: 'Theme: Dark' }))
+    expect(screen.getByRole('menuitemradio', { name: 'Dark' })).toHaveAttribute('aria-checked', 'true')
+    await user.click(screen.getByRole('menuitemradio', { name: 'Match system' }))
+    expect(html.dataset.theme).toBeUndefined()
+    expect(localStorage.getItem('ballast:theme')).toBeNull()
+  })
 })

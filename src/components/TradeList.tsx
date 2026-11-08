@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { assetClassColors } from '../domain/assetClasses'
 import { tradesToCsv } from '../domain/csv'
 import { formatShares, formatSignedUsd, formatUsd, formatUsdCents } from '../domain/format'
@@ -10,6 +11,7 @@ import styles from './TradeList.module.css'
 
 export function TradeList({ livePrices = false }: { livePrices?: boolean }) {
   const { plan, portfolio } = usePortfolio()
+  const [exporting, setExporting] = useState(false)
 
   if (!plan.ok) {
     return (
@@ -41,9 +43,32 @@ export function TradeList({ livePrices = false }: { livePrices?: boolean }) {
       id="trades-title"
       actions={
         plan.trades.length > 0 && (
-          <button type="button" className="button secondary" onClick={() => downloadText(tradesToCsv(plan.trades), `rebalance-trades-${new Date().toISOString().slice(0, 10)}.csv`)}>
-            Export CSV
-          </button>
+          <>
+            <button
+              type="button"
+              className="button secondary"
+              disabled={exporting}
+              onClick={async () => {
+                setExporting(true)
+                try {
+                  // Loaded on demand: the spreadsheet library is large.
+                  const { downloadPlanWorkbook } = await import('../export/planWorkbook')
+                  await downloadPlanWorkbook({ plan, portfolio })
+                } finally {
+                  setExporting(false)
+                }
+              }}
+            >
+              {exporting ? 'Preparing…' : 'Export to Excel'}
+            </button>
+            <button
+              type="button"
+              className={styles.csv}
+              onClick={() => downloadText(tradesToCsv(plan.trades), `rebalance-trades-${new Date().toISOString().slice(0, 10)}.csv`)}
+            >
+              CSV
+            </button>
+          </>
         )
       }
     >

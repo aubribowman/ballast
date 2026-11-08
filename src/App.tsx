@@ -1,3 +1,4 @@
+import { ThemeMenu } from './components/ThemeMenu'
 import { HomePage } from './pages/HomePage'
 import { RebalancerPage } from './pages/RebalancerPage'
 import { hrefFor, useRoute, type Route } from './useRoute'
@@ -30,9 +31,12 @@ export default function App() {
               </a>
             ))}
           </nav>
-          {route === 'home' && (
-            <a className={styles.cta} href={hrefFor('rebalancer')}>Open rebalancer</a>
-          )}
+          <div className={styles.tools}>
+            <ThemeMenu />
+            {route === 'home' && (
+              <a className={styles.cta} href={hrefFor('rebalancer')}>Open rebalancer</a>
+            )}
+          </div>
         </div>
       </header>
 

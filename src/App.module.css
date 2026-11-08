@@ -56,6 +56,12 @@
 .nav a:hover { color: var(--on-navy); }
 .nav a[aria-current='page'] { color: var(--on-navy); border-bottom-color: var(--on-navy); }
 
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .cta {
   padding: 0.4375rem 0.875rem;
   font-size: 0.8125rem;
