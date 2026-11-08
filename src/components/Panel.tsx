@@ -8,7 +8,7 @@ export function Panel({ title, actions, children, id }: { title: string; actions
         <h2 id={id}>{title}</h2>
         {actions && <div className={styles.actions}>{actions}</div>}
       </header>
-      {children}
+      <div className={styles.body}>{children}</div>
     </section>
   )
 }

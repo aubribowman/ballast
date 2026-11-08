@@ -22,7 +22,10 @@ export function SummaryStrip() {
       </div>
       <div>
         <dt>Status</dt>
-        <dd data-alert={outside > 0 || undefined}>{status}</dd>
+        <dd className={styles.status} data-alert={outside > 0 || undefined}>
+          <span className={styles.statusDot} aria-hidden="true" />
+          {status}
+        </dd>
       </div>
       <div>
         <dt>Suggested trades</dt>

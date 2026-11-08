@@ -6,6 +6,7 @@ import { PortfolioProvider } from './state/PortfolioProvider'
 import { samplePortfolio } from './state/samplePortfolio'
 
 function renderApp() {
+  window.location.hash = '#/rebalancer'
   render(
     <PortfolioProvider initial={samplePortfolio()}>
       <App />

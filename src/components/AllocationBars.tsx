@@ -40,7 +40,7 @@ export function AllocationBars() {
               contentStyle={{
                 background: 'var(--surface)',
                 border: '1px solid var(--rule)',
-                borderRadius: 8,
+                borderRadius: 4,
                 fontSize: 13,
               }}
             />
@@ -51,7 +51,7 @@ export function AllocationBars() {
                 stackId="mix"
                 fill={assetClassColors[c]}
                 isAnimationActive={false}
-                radius={i === 0 ? [4, 0, 0, 4] : i === assetClasses.length - 1 ? [0, 4, 4, 0] : 0}
+                radius={i === 0 ? [2, 0, 0, 2] : i === assetClasses.length - 1 ? [0, 2, 2, 0] : 0}
               />
             ))}
           </BarChart>

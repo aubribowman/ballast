@@ -36,7 +36,7 @@ export function TradeList() {
       id="trades-title"
       actions={
         plan.trades.length > 0 && (
-          <button type="button" className="button" onClick={() => downloadCsv(tradesToCsv(plan.trades))}>
+          <button type="button" className="button secondary" onClick={() => downloadCsv(tradesToCsv(plan.trades))}>
             Export CSV
           </button>
         )

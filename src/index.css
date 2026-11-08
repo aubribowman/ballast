@@ -1,50 +1,89 @@
-/* Ballast design tokens. Cool lavender-gray paper, indigo ink, and one
-   color per asset class that carries through every chart and table. */
+/* Ballast design tokens. An institutional look: navy masthead, cool
+   neutral paper, serif figures, and a muted palette with one color per
+   asset class that carries through every chart and table. */
 :root {
-  --bg: #f1f2f7;
+  --bg: #f3f4f6;
   --surface: #ffffff;
-  --ink: #1b1f3b;
-  --ink-muted: #5d6280;
-  --rule: #dcdee9;
-  --accent: #3d4cc4;
-  --accent-text: #2f3da8;
-  --accent-wash: #e8eafb;
-  --accent-ring: rgb(61 76 196 / 0.2);
-  --on-accent: #ffffff;
-  --warn: #b0670f;
-  --warn-wash: #fbf0e1;
-  --band: rgb(61 76 196 / 0.1);
+  --surface-alt: #f8f9fb;
+  --ink: #0f1b2d;
+  --ink-muted: #5a6577;
+  --ink-faint: #8a93a3;
+  --rule: #dde1e7;
+  --rule-strong: #c4cad4;
 
-  --class-us: #3d4cc4;
-  --class-intl: #23998a;
-  --class-bonds: #8d68c4;
-  --class-re: #cf9238;
-  --class-cash: #9298ae;
+  --navy: #0c1e3a;
+  --navy-2: #13294d;
+  --on-navy: #ffffff;
+  --on-navy-muted: #a9b6cc;
+  --gold: #b08d4f;
+
+  --accent: #1d4079;
+  --accent-text: #1d4079;
+  --accent-hover: #15315f;
+  --accent-wash: #e9eef7;
+  --accent-ring: rgb(29 64 121 / 0.2);
+  --on-accent: #ffffff;
+
+  --gain: #13744a;
+  --gain-wash: #e5f3ec;
+  --loss: #b3261e;
+  --loss-wash: #fbeceb;
+  --warn: #9a5b06;
+  --warn-wash: #fbf2e2;
+  --band: rgb(29 64 121 / 0.09);
+
+  --class-us: #1d4079;
+  --class-intl: #2f8a86;
+  --class-bonds: #b08d4f;
+  --class-re: #8a5274;
+  --class-cash: #9ba4b3;
+
+  --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --radius: 4px;
+  --shadow: 0 1px 2px rgb(15 27 45 / 0.04);
 
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #12142a;
-    --surface: #1b1e38;
-    --ink: #e7e8f4;
-    --ink-muted: #9a9fbd;
-    --rule: #2e3256;
-    --accent: #7d8bf2;
-    --accent-text: #a9b2f8;
-    --accent-wash: #262c5c;
-    --accent-ring: rgb(125 139 242 / 0.3);
-    --on-accent: #12142a;
-    --warn: #eba552;
-    --warn-wash: #3a2a16;
-    --band: rgb(125 139 242 / 0.14);
+    --bg: #0a111e;
+    --surface: #111a2b;
+    --surface-alt: #0e1625;
+    --ink: #e6eaf1;
+    --ink-muted: #9aa5b8;
+    --ink-faint: #6f7a8e;
+    --rule: #223049;
+    --rule-strong: #31415e;
 
-    --class-us: #7d8bf2;
-    --class-intl: #45c2b1;
-    --class-bonds: #b394e6;
-    --class-re: #e5ac57;
-    --class-cash: #8a90ab;
+    --navy: #070d18;
+    --navy-2: #0f1a2e;
+    --on-navy: #ffffff;
+    --on-navy-muted: #8e9bb3;
+    --gold: #d2b06f;
+
+    --accent: #7ea4e6;
+    --accent-text: #a6c1f0;
+    --accent-hover: #9bb9ee;
+    --accent-wash: #18284a;
+    --accent-ring: rgb(126 164 230 / 0.3);
+    --on-accent: #0a111e;
+
+    --gain: #4cc38a;
+    --gain-wash: #11302a;
+    --loss: #f07a72;
+    --loss-wash: #3a1a1c;
+    --warn: #e6a650;
+    --warn-wash: #3a2a14;
+    --band: rgb(126 164 230 / 0.12);
+
+    --class-us: #7ea4e6;
+    --class-intl: #4fbab4;
+    --class-bonds: #d2b06f;
+    --class-re: #c487ab;
+    --class-cash: #7f8a9e;
+
+    --shadow: none;
 
     color-scheme: dark;
   }
@@ -57,7 +96,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -67,8 +106,14 @@ input, select, button, textarea { font: inherit; color: inherit; }
 :where(input:not([type='radio'], [type='checkbox'], [type='range']), select) {
   padding: 0.5rem 0.625rem;
   background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: 6px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+}
+
+:where(input:not([type='radio'], [type='checkbox'], [type='range']), select):focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+  outline: none;
 }
 
 :focus-visible {
@@ -78,19 +123,20 @@ input, select, button, textarea { font: inherit; color: inherit; }
 
 .button {
   padding: 0.4375rem 0.875rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--ink);
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--on-accent);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
   cursor: pointer;
 }
 
-.button:hover { border-color: var(--ink-muted); }
+.button:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 
-.button.quiet { background: none; border-color: transparent; color: var(--ink-muted); }
-.button.quiet:hover { color: var(--ink); background: var(--surface); }
+.button.secondary { color: var(--accent-text); background: var(--surface); border-color: var(--rule-strong); }
+.button.secondary:hover { border-color: var(--accent); background: var(--accent-wash); }
 
 .visually-hidden {
   position: absolute;
