@@ -1,0 +1,102 @@
+/* Ballast design tokens. Cool lavender-gray paper, indigo ink, and one
+   color per asset class that carries through every chart and table. */
+:root {
+  --bg: #f1f2f7;
+  --surface: #ffffff;
+  --ink: #1b1f3b;
+  --ink-muted: #5d6280;
+  --rule: #dcdee9;
+  --accent: #3d4cc4;
+  --accent-text: #2f3da8;
+  --accent-wash: #e8eafb;
+  --accent-ring: rgb(61 76 196 / 0.2);
+  --on-accent: #ffffff;
+  --warn: #b0670f;
+  --warn-wash: #fbf0e1;
+  --band: rgb(61 76 196 / 0.1);
+
+  --class-us: #3d4cc4;
+  --class-intl: #23998a;
+  --class-bonds: #8d68c4;
+  --class-re: #cf9238;
+  --class-cash: #9298ae;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12142a;
+    --surface: #1b1e38;
+    --ink: #e7e8f4;
+    --ink-muted: #9a9fbd;
+    --rule: #2e3256;
+    --accent: #7d8bf2;
+    --accent-text: #a9b2f8;
+    --accent-wash: #262c5c;
+    --accent-ring: rgb(125 139 242 / 0.3);
+    --on-accent: #12142a;
+    --warn: #eba552;
+    --warn-wash: #3a2a16;
+    --band: rgb(125 139 242 / 0.14);
+
+    --class-us: #7d8bf2;
+    --class-intl: #45c2b1;
+    --class-bonds: #b394e6;
+    --class-re: #e5ac57;
+    --class-cash: #8a90ab;
+
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+input, select, button, textarea { font: inherit; color: inherit; }
+
+:where(input:not([type='radio'], [type='checkbox'], [type='range']), select) {
+  padding: 0.5rem 0.625rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.button {
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.button:hover { border-color: var(--ink-muted); }
+
+.button.quiet { background: none; border-color: transparent; color: var(--ink-muted); }
+.button.quiet:hover { color: var(--ink); background: var(--surface); }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

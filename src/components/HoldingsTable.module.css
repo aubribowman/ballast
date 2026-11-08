@@ -1,0 +1,66 @@
+.wrap { overflow-x: auto; margin: 0 -0.5rem; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.table th {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  text-align: left;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.table td {
+  padding: 0.25rem 0.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+.table input,
+.table select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.4375rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+}
+
+.table input:hover,
+.table select:hover { border-color: var(--rule); }
+.table input:focus,
+.table select:focus { border-color: var(--accent); background: var(--surface); outline: none; box-shadow: 0 0 0 3px var(--accent-ring); }
+.table input[aria-invalid] { border-color: var(--warn); }
+
+.ticker { font-weight: 600; width: 5.5rem !important; }
+.table td:nth-child(2) input { min-width: 12rem; }
+.table td:nth-child(3) select { min-width: 10rem; }
+
+.num { text-align: right !important; }
+.num input { text-align: right; width: 6.5rem !important; font-variant-numeric: tabular-nums; }
+.value { font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 1rem !important; }
+
+.remove {
+  border: 0;
+  background: none;
+  padding: 0.375rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+  cursor: pointer;
+  border-radius: 6px;
+}
+.remove:hover { color: var(--warn); }
+
+.empty { color: var(--ink-muted); margin: 0; }
+
+.note {
+  margin: 1rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}

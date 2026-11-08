@@ -1,0 +1,185 @@
+.drift {
+  margin-bottom: 2rem;
+}
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.heading h2 {
+  margin: 0;
+  font-size: 1.375rem;
+  letter-spacing: -0.01em;
+}
+
+.heading p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.keyDot,
+.keyRing {
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  vertical-align: -0.05em;
+}
+
+.keyDot { background: var(--ink); }
+.keyRing { border: 2px solid var(--ink); }
+
+/* Grid columns shared by the axis labels and every row. */
+.axis,
+.row {
+  display: grid;
+  grid-template-columns: 11rem 7.5rem minmax(0, 1fr) 5.5rem;
+  gap: 1rem;
+  align-items: center;
+}
+
+.axis {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.axis span:nth-child(1) { grid-column: 3; justify-self: start; grid-row: 1; }
+.axis span:nth-child(2) { grid-column: 3; justify-self: center; grid-row: 1; }
+.axis span:nth-child(3) { grid-column: 3; justify-self: end; grid-row: 1; }
+
+.rows {
+  list-style: none;
+  margin: 0.375rem 0 0;
+  padding: 0;
+}
+
+.row {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.row:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 500;
+}
+
+.swatch {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 3px;
+}
+
+.numbers {
+  font-variant-numeric: tabular-nums;
+}
+
+.of {
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+}
+
+.track {
+  position: relative;
+  height: 1.75rem;
+}
+
+.track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: var(--rule);
+  transform: translateY(-50%);
+}
+
+.band {
+  position: absolute;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  background: var(--band);
+  border-radius: 4px;
+}
+
+.center {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--ink);
+  transform: translateX(-50%);
+}
+
+.dot,
+.ring {
+  position: absolute;
+  top: 50%;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 300ms ease;
+}
+
+.dot {
+  background: var(--ink-muted);
+  box-shadow: 0 0 0 3px var(--bg);
+}
+
+.row[data-off] .dot {
+  background: var(--warn);
+}
+
+.ring {
+  border: 2px solid var(--ink);
+  background: var(--bg);
+}
+
+.value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.row[data-off] .value {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.blocked {
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--warn);
+  background: var(--warn-wash);
+  margin: 0 0 2rem;
+}
+
+@media (max-width: 760px) {
+  .axis,
+  .row {
+    grid-template-columns: 1fr auto;
+    row-gap: 0.375rem;
+  }
+  .axis { display: none; }
+  .track { grid-column: 1 / -1; grid-row: 2; }
+  .numbers { text-align: right; }
+  .value { grid-column: 2; grid-row: 3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot, .ring { transition: none; }
+}
