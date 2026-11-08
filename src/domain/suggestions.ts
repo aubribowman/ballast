@@ -17,6 +17,7 @@ const examples: Record<AssetClass, string[]> = {
 
 export type FundSuggestion = KnownTicker & { ticker: string }
 
+/** Example funds for an asset class that needs money but has nothing to buy. Names come from tickers.ts. */
 export function exampleFunds(assetClass: AssetClass): FundSuggestion[] {
   return examples[assetClass].map(ticker => ({ ticker, ...lookupTicker(ticker)! }))
 }

@@ -1,6 +1,20 @@
 import { assetClasses } from './assetClasses'
 import type { AssetClass, Holding, Settings, Targets } from './types'
 
+/*
+ * The rebalancing algorithm. Plain TypeScript with no React, so it can be
+ * tested on its own (rebalance.test.ts).
+ *
+ * In short:
+ *   1. Work out each asset class's share of the portfolio (plus any new cash).
+ *   2. If any class is outside the tolerance band, or there's new cash, work
+ *      out how many dollars each class should gain or lose.
+ *   3. Split each class's amount across the funds held in it, in proportion
+ *      to their size, and turn dollars into shares.
+ *   4. Recalculate the mix as it would be after those trades.
+ */
+
+/** One asset class's slice of the portfolio, compared with its target. */
 export interface ClassAllocation {
   assetClass: AssetClass
   value: number
@@ -8,9 +22,11 @@ export interface ClassAllocation {
   targetPct: number
   /** Current minus target, in percentage points. Positive means overweight. */
   driftPct: number
+  /** True when drift is larger than the tolerance band, so it needs trades. */
   outsideBand: boolean
 }
 
+/** One suggested order. `amount` is shares × current price, so it's an estimate. */
 export interface Trade {
   holdingId: string
   ticker: string
@@ -20,14 +36,22 @@ export interface Trade {
   amount: number
 }
 
+/**
+ * The result of planRebalance. When `ok` is false the inputs can't be planned
+ * (targets don't add to 100%, or a price is missing) and `error` says why.
+ */
 export type RebalancePlan =
   | {
       ok: true
       totalValue: number
+      /** The mix now. */
       current: ClassAllocation[]
+      /** The mix after the suggested trades. */
       projected: ClassAllocation[]
       trades: Trade[]
+      /** New cash plus sale proceeds minus purchases. Never negative. */
       leftoverCash: number
+      /** False when everything is within the band and there's no new cash. */
       needsRebalance: boolean
       warnings: string[]
       /** Money a class should get but can't, because nothing in it is held. */
@@ -40,6 +64,7 @@ export const MIN_TRADE = 1
 
 export const holdingValue = (h: Holding) => h.shares * h.price
 
+/** Sum of the target percentages. The plan only runs when this is 100. */
 export function targetsTotal(targets: Targets): number {
   return assetClasses.reduce((sum, c) => sum + (targets[c] || 0), 0)
 }
@@ -78,6 +103,7 @@ function splitAcross(holdings: Holding[], amount: number): Map<string, number> {
   )
 }
 
+/** Converts dollars to shares: whole shares, or up to 4 decimal places. */
 function toShares(amount: number, price: number, action: 'Buy' | 'Sell', wholeShares: boolean): number {
   const raw = amount / price
   // Round buys down and sells up, so the plan never spends cash it doesn't have.
@@ -86,6 +112,10 @@ function toShares(amount: number, price: number, action: 'Buy' | 'Sell', wholeSh
   return action === 'Buy' ? Math.floor(raw * factor) / factor : Math.ceil(raw * factor) / factor
 }
 
+/**
+ * Works out the trades that bring `holdings` back to `targets`.
+ * Called by PortfolioProvider whenever the portfolio changes.
+ */
 export function planRebalance(holdings: Holding[], targets: Targets, settings: Settings): RebalancePlan {
   const total = targetsTotal(targets)
   if (Math.abs(total - 100) > 0.01) {
@@ -102,6 +132,7 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
     }
   }
 
+  // Step 1: the current mix.
   const cash = Math.max(0, settings.cashToInvest || 0)
   const current = allocate(holdings, targets, cash, settings.bandPct)
   const totalValue = current.reduce((sum, c) => sum + c.value, 0)
@@ -112,7 +143,7 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
   const amountByHolding = new Map<string, number>()
 
   if (needsRebalance) {
-    // How many dollars each class should gain (+) or lose (−), using only
+    // Step 2: how many dollars each class should gain (+) or lose (−), using only
     // what's held in it. Across all classes these add up to the new cash.
     const classDelta = new Map<AssetClass, number>()
     for (const c of assetClasses) {
@@ -130,6 +161,7 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
       })
     }
 
+    // Step 3: share each class's amount among the funds held in it.
     for (const c of assetClasses) {
       const delta = classDelta.get(c)!
       if (Math.abs(delta) < MIN_TRADE) continue
@@ -144,13 +176,14 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
     }
   }
 
+  // Turn dollar amounts into share orders, dropping any too small to place.
   const trades: Trade[] = []
   for (const h of holdings) {
     const amount = amountByHolding.get(h.id) ?? 0
     if (Math.abs(amount) < MIN_TRADE) continue
     const action = amount > 0 ? 'Buy' : 'Sell'
     let shares = toShares(Math.abs(amount), h.price, action, settings.wholeShares)
-    if (action === 'Sell') shares = Math.min(shares, h.shares)
+    if (action === 'Sell') shares = Math.min(shares, h.shares) // can't sell more than you own
     const tradeAmount = round(shares * h.price, 2)
     if (shares <= 0 || tradeAmount < MIN_TRADE) continue
     trades.push({ holdingId: h.id, ticker: h.ticker || '—', assetClass: h.assetClass, action, shares, amount: tradeAmount })
@@ -160,6 +193,7 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
   const bought = trades.filter(t => t.action === 'Buy').reduce((s, t) => s + t.amount, 0)
   const leftoverCash = round(cash + sold - bought, 2)
 
+  // Step 4: the mix after the trades, for the "after" markers in the charts.
   const after = holdings.map(h => {
     const t = trades.find(t => t.holdingId === h.id)
     if (!t) return h
@@ -170,6 +204,7 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
   return { ok: true, totalValue, current, projected, trades, leftoverCash, needsRebalance, warnings, unfilled }
 }
 
+/** Rounds to a number of decimal places, e.g. round(1.005, 2) for cents. */
 export function round(n: number, digits: number): number {
   const f = 10 ** digits
   return Math.round(n * f) / f

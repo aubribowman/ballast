@@ -6,7 +6,7 @@
  */
 export const QUOTE_PROVIDER = { name: 'Twelve Data', signupUrl: 'https://twelvedata.com/pricing' }
 
-const BATCH_SIZE = 8
+const BATCH_SIZE = 8 // symbols per request, matching the free plan's per-minute limit
 
 export interface QuoteResult {
   prices: Record<string, number>
@@ -44,6 +44,11 @@ export function parsePriceResponse(json: unknown, symbols: string[]): QuoteResul
   return result
 }
 
+/**
+ * Fetches prices for any number of symbols, a batch at a time. Never throws
+ * for network or API problems: they come back in `error`, with the affected
+ * symbols in `missing`. It only throws if `signal` cancels the request.
+ */
 export async function fetchPrices(symbols: string[], apiKey: string, signal?: AbortSignal): Promise<QuoteResult> {
   const unique = [...new Set(symbols.map(s => s.trim().toUpperCase()).filter(Boolean))]
   const combined: QuoteResult = { prices: {}, missing: [] }

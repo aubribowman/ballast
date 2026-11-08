@@ -17,10 +17,18 @@ import styles from './HoldingsTable.module.css'
 
 type HoldingChanges = Partial<Omit<Holding, 'id'>>
 
+/**
+ * The editable list of holdings. Every edit is sent straight to the shared
+ * portfolio, so the plan and charts update as you type.
+ *
+ * Also hosts CSV import (file picker → ImportPreview → importHoldings action)
+ * and the live price controls, which RebalancerPage passes in as `prices`.
+ */
 export function HoldingsTable({ prices }: { prices: LivePrices }) {
   const { portfolio, dispatch } = usePortfolio()
   const { holdings } = portfolio
   const fileInput = useRef<HTMLInputElement>(null)
+  // A parsed import waiting for the person to confirm it in ImportPreview.
   const [pending, setPending] = useState<{ fileName: string; result: ImportResult } | null>(null)
   const total = holdings.reduce((sum, h) => sum + holdingValue(h), 0)
   const gain = portfolioGain(holdings)
@@ -32,6 +40,7 @@ export function HoldingsTable({ prices }: { prices: LivePrices }) {
 
   function confirmImport(mode: 'replace' | 'add') {
     if (!pending) return
+    // Drop import-only fields (like classGuessed) before saving.
     const imported = pending.result.holdings.map(h => ({
       ticker: h.ticker, name: h.name, assetClass: h.assetClass, shares: h.shares, price: h.price, costBasis: h.costBasis,
     }))
@@ -59,6 +68,7 @@ export function HoldingsTable({ prices }: { prices: LivePrices }) {
         </>
       }
     >
+      {/* Hidden file picker, opened by the "Import CSV" button. */}
       <input
         ref={fileInput}
         type="file"
@@ -69,7 +79,7 @@ export function HoldingsTable({ prices }: { prices: LivePrices }) {
         onChange={e => {
           const file = e.target.files?.[0]
           if (file) void readFile(file)
-          e.target.value = ''
+          e.target.value = '' // so choosing the same file again still triggers onChange
         }}
       />
 
@@ -119,6 +129,7 @@ export function HoldingsTable({ prices }: { prices: LivePrices }) {
                         placeholder="VTI"
                         list="ticker-directory"
                         autoComplete="off"
+                        // tickerChanges also fills in the name and asset class for known tickers.
                         onChange={e => update(tickerChanges(h, e.target.value.toUpperCase().slice(0, 8)))}
                       />
                     </td>
@@ -190,6 +201,7 @@ export function HoldingsTable({ prices }: { prices: LivePrices }) {
           </table>
         </div>
       )}
+      {/* Autocomplete suggestions for the ticker fields. */}
       <datalist id="ticker-directory">
         {knownTickers.map(t => (
           <option key={t.ticker} value={t.ticker}>{t.name}</option>

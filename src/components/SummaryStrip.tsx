@@ -3,6 +3,7 @@ import { portfolioGain } from '../domain/gains'
 import { usePortfolio } from '../state/usePortfolio'
 import styles from './SummaryStrip.module.css'
 
+/** The row of headline numbers across the top of the rebalancer. Hidden while the plan has an error. */
 export function SummaryStrip() {
   const { plan, portfolio } = usePortfolio()
   if (!plan.ok) return null
@@ -11,6 +12,7 @@ export function SummaryStrip() {
   const band = portfolio.settings.bandPct
   const gain = portfolioGain(portfolio.holdings)
 
+  // One-line health check: on target, or how many classes have drifted too far.
   let status: string
   if (outside === 0 && !plan.needsRebalance) status = 'On target'
   else if (outside === 0) status = 'On target, new cash to invest'
@@ -24,6 +26,7 @@ export function SummaryStrip() {
       </div>
       <div>
         <dt>Unrealized gain/loss</dt>
+        {/* data-sign (1, 0 or -1) lets the CSS color gains green and losses red. */}
         <dd className={styles.gain} data-sign={gain ? Math.sign(Math.round(gain.amount)) : undefined}>
           {gain ? (
             <>

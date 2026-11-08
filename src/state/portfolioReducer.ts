@@ -2,6 +2,7 @@ import { combine } from '../domain/csvImport'
 import type { AssetClass, Holding, Portfolio, Settings, Targets } from '../domain/types'
 import { samplePortfolio } from './samplePortfolio'
 
+/** Every change the app can make to the portfolio. Components send these through `dispatch`. */
 export type PortfolioAction =
   | { type: 'addHolding'; holding?: Partial<Omit<Holding, 'id'>> }
   | { type: 'updateHolding'; id: string; changes: Partial<Omit<Holding, 'id'>> }
@@ -16,6 +17,7 @@ export type PortfolioAction =
   | { type: 'loadSample' }
   | { type: 'clear' }
 
+// Ids only need to be unique within this browser: time plus a counter.
 let nextId = 0
 const newId = () => `h${Date.now().toString(36)}${(nextId++).toString(36)}`
 
@@ -36,6 +38,7 @@ export function portfolioReducer(state: Portfolio, action: PortfolioAction): Por
         ...state,
         holdings: state.holdings.map(h => (h.id === action.id ? { ...h, ...action.changes } : h)),
       }
+    // Only holdings whose price changed get a new object, so unchanged rows don't re-render.
     case 'setPrices':
       return {
         ...state,
@@ -46,6 +49,7 @@ export function portfolioReducer(state: Portfolio, action: PortfolioAction): Por
       }
     case 'importHoldings': {
       const incoming = action.holdings.map(h => ({ ...h, id: newId() }))
+      // 'add' merges a fund you already hold into one row, averaging the cost.
       if (action.mode === 'replace') return { ...state, holdings: incoming }
       const holdings = [...state.holdings]
       for (const h of incoming) {
@@ -66,6 +70,7 @@ export function portfolioReducer(state: Portfolio, action: PortfolioAction): Por
     case 'loadSample':
       return samplePortfolio()
     case 'clear':
+      // Keeps settings (method, band, whole shares) so starting over doesn't reset preferences.
       return {
         holdings: [],
         targets: { usEquity: 0, intlEquity: 0, bonds: 0, realEstate: 0, cash: 0 },

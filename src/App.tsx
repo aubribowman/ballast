@@ -4,11 +4,13 @@ import { RebalancerPage } from './pages/RebalancerPage'
 import { hrefFor, useRoute, type Route } from './useRoute'
 import styles from './App.module.css'
 
+// Links in the top bar. Routes are defined in useRoute.ts.
 const nav: { route: Route; label: string }[] = [
   { route: 'home', label: 'Overview' },
   { route: 'rebalancer', label: 'Rebalancer' },
 ]
 
+/** Page shell: top bar, the current page, and the footer disclosure. */
 export default function App() {
   const route = useRoute()
 
@@ -17,6 +19,7 @@ export default function App() {
       <header className={styles.masthead}>
         <div className={styles.mastheadInner}>
           <a className={styles.brand} href={hrefFor('home')}>
+            {/* Logo mark. The same shape is drawn as a PNG in export/logo.ts for the Excel file. */}
             <svg className={styles.mark} viewBox="0 0 32 32" aria-hidden="true">
               <rect x="6" y="7" width="20" height="3" fill="var(--gold)" />
               <rect x="6" y="14.5" width="14" height="3" fill="currentColor" />
@@ -46,7 +49,7 @@ export default function App() {
         <div className={styles.footerInner}>
           <p className={styles.disclosure}>Important information</p>
           <p>
-            Ballast is a portfolio project. It is not investment advice, and prices are entered by hand.
+            Ballast is a portfolio project. It is not investment advice, and prices may be delayed or entered by hand.
             Review every trade with your brokerage before placing it. Your portfolio is saved only in this browser.
           </p>
         </div>

@@ -6,8 +6,14 @@ import { usePortfolio } from '../state/usePortfolio'
 import { Panel } from './Panel'
 import styles from './AllocationBars.module.css'
 
+// One bar in the chart: a label plus each asset class's percent, stacked left to right.
 type Row = { name: string } & Record<AssetClass, number>
 
+/**
+ * "Mix at a glance": stacked bars for now, target and (if there are trades)
+ * after. Uses Recharts, so it's loaded lazily by RebalancerPage to keep the
+ * first page load small.
+ */
 export function AllocationBars() {
   const { plan } = usePortfolio()
   if (!plan.ok) return null
@@ -18,6 +24,7 @@ export function AllocationBars() {
   const data: Row[] = [
     row('Now', i => plan.current[i].pct),
     row('Target', i => plan.current[i].targetPct),
+    // "After" only means something when there are trades to make.
     ...(plan.trades.length ? [row('After', i => plan.projected[i].pct)] : []),
   ]
 
@@ -25,6 +32,7 @@ export function AllocationBars() {
     <Panel title="Mix at a glance" id="mix-title">
       {/* Centered, so a panel stretched to match the sidebar stays balanced. */}
       <div className={styles.figure}>
+        {/* About 44px per bar. ResponsiveContainer needs a parent with a set height. */}
         <div style={{ height: data.length * 44 + 8 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} layout="vertical" margin={{ top: 0, right: 4, bottom: 0, left: 0 }} barCategoryGap={10}>
@@ -54,6 +62,7 @@ export function AllocationBars() {
                   stackId="mix"
                   fill={assetClassColors[c]}
                   isAnimationActive={false}
+                  // Round only the outer ends of each stacked bar.
                   radius={i === 0 ? [2, 0, 0, 2] : i === assetClasses.length - 1 ? [0, 2, 2, 0] : 0}
                 />
               ))}

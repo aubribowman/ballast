@@ -6,6 +6,7 @@ import { usePortfolio } from '../state/usePortfolio'
 import styles from './FundSuggestions.module.css'
 
 interface Props {
+  /** From plan.unfilled: classes that need money but have no holding. */
   gaps: { assetClass: AssetClass; amount: number }[]
   /** Live prices are on, so an added fund gets its price without help. */
   livePrices: boolean
@@ -20,6 +21,7 @@ export function FundSuggestions({ gaps, livePrices }: Props) {
   if (gaps.length === 0) return null
 
   function add(fund: FundSuggestion) {
+    // Money market funds come with their $1.00 price; others need a quote or a typed price.
     dispatch({
       type: 'addHolding',
       holding: {
@@ -32,6 +34,7 @@ export function FundSuggestions({ gaps, livePrices }: Props) {
     })
     // Without a live price, the plan waits on one, so take the person to it.
     if (!fund.fixedPrice && !livePrices) {
+      // Wait a frame for the new row to render before looking for its price field.
       requestAnimationFrame(() => {
         const input = document.querySelector<HTMLInputElement>(`input[aria-label="Price of ${fund.ticker}"]`)
         input?.scrollIntoView({ block: 'center', behavior: 'smooth' })

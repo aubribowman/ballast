@@ -1,11 +1,15 @@
 import type { Holding } from './types'
 
+// Gain and loss estimates from each holding's average cost per share.
+// Brokerages track individual tax lots, so their figures can differ.
+
 export interface Gain {
   amount: number
   /** Gain as a percent of what was paid. */
   pct: number
 }
 
+/** Whether the person entered (or imported) what they paid for this holding. */
 export const hasCost = (h: Holding) => (h.costBasis ?? 0) > 0
 
 /** Unrealized gain or loss on a holding, or undefined when its cost isn't known. */

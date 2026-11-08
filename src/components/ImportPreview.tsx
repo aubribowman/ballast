@@ -5,7 +5,9 @@ import styles from './ImportPreview.module.css'
 
 interface Props {
   fileName: string
+  /** The parsed file, from importHoldingsCsv. */
   result: ImportResult
+  /** Whether the portfolio already has holdings, which adds the "Add to current" choice. */
   hasHoldings: boolean
   onConfirm: (mode: 'replace' | 'add') => void
   onCancel: () => void

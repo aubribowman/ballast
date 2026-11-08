@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTheme, type Theme } from '../state/useTheme'
 import styles from './ThemeMenu.module.css'
 
+/** Wraps icon paths in a shared 20×20 outline SVG. */
 const icon = (path: ReactNode) => (
   <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
     {path}
@@ -34,6 +35,7 @@ export function ThemeMenu() {
   const button = useRef<HTMLButtonElement>(null)
   const current = options.find(o => o.value === theme)!
 
+  // While open: close on a click outside or Escape (returning focus to the button).
   useEffect(() => {
     if (!open) return
     const onPointer = (e: PointerEvent) => {
@@ -55,6 +57,7 @@ export function ThemeMenu() {
     }
   }, [open])
 
+  /** Up and down arrows move between options, wrapping at the ends. */
   function onMenuKey(e: React.KeyboardEvent) {
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
     e.preventDefault()

@@ -4,11 +4,13 @@ import { NumberInput } from './NumberInput'
 import { Panel } from './Panel'
 import styles from './SettingsPanel.module.css'
 
+// The two rebalancing methods. See RebalanceMode in domain/types.ts.
 const modes: { value: RebalanceMode; label: string; description: string }[] = [
   { value: 'full', label: 'Full rebalance', description: 'Buy and sell to get back to target.' },
   { value: 'buyOnly', label: 'Invest new cash only', description: 'Buy what’s underweight. Nothing is sold, so no gains are realized.' },
 ]
 
+/** The "Rebalancing rules" panel: method, new cash, tolerance band and whole shares. */
 export function SettingsPanel() {
   const { portfolio, dispatch } = usePortfolio()
   const { settings } = portfolio

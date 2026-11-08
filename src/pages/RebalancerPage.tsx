@@ -16,12 +16,19 @@ const AllocationBars = lazy(() =>
   import('../components/AllocationBars').then(m => ({ default: m.AllocationBars })),
 )
 
+/**
+ * The main tool at #/rebalancer. Every panel reads the shared portfolio
+ * through usePortfolio(); this page only lays them out and owns the live
+ * price state, which both the holdings table and trade list need.
+ */
 export function RebalancerPage() {
   const { dispatch } = usePortfolio()
   const prices = useLivePrices()
   const { status } = prices
+  // Below 960px the layout is one column (matches RebalancerPage.module.css).
   const { gridRef, mainRef, sideRef, movableRef, inSide } = useBalancedColumns('(max-width: 960px)', styles.measuring)
 
+  // The chart is defined once and placed in whichever column useBalancedColumns picks.
   const mix = (
     <div className={styles.slot} ref={movableRef}>
       <Suspense fallback={null}>

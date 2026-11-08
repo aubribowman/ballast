@@ -7,10 +7,11 @@ import { usePortfolio } from '../state/usePortfolio'
 import { hrefFor, navigate } from '../useRoute'
 import styles from './HomePage.module.css'
 
+// Marketing content for the landing page. Edit the copy here.
 const steps = [
-  { title: 'Enter your holdings', body: 'Add each fund or stock with its share count and current price.' },
+  { title: 'Enter your holdings', body: 'Add each fund or stock, or import the positions file from your brokerage.' },
   { title: 'Set a target mix', body: 'Start from a model portfolio or choose your own percentages.' },
-  { title: 'Review the trades', body: 'See what to buy and sell, then export the list as a CSV.' },
+  { title: 'Review the trades', body: 'See what to buy and sell, then export the plan to Excel.' },
 ]
 
 const features = [
@@ -20,6 +21,7 @@ const features = [
   { title: 'Plans you can place', body: 'Whole or fractional shares. Buys round down and sells round up, so a plan never spends more cash than it has.' },
 ]
 
+/** A thin stacked bar of a target mix. Plain CSS (flex-grow per class), so the home page doesn't load the chart library. */
 function MixBar({ targets, label }: { targets: Targets; label: string }) {
   return (
     <div className={styles.mixBar} role="img" aria-label={label}>
@@ -30,6 +32,7 @@ function MixBar({ targets, label }: { targets: Targets; label: string }) {
   )
 }
 
+/** The landing page at #/: intro, a live preview of the portfolio, how it works, and model portfolios. */
 export function HomePage() {
   const { plan: ownPlan, portfolio, dispatch } = usePortfolio()
 
@@ -167,7 +170,7 @@ export function HomePage() {
         <section className={styles.band}>
           <div>
             <h2>See where your portfolio stands.</h2>
-            <p>It takes a few minutes to enter your holdings. Prices are entered by hand.</p>
+            <p>It takes a few minutes to enter or import your holdings.</p>
           </div>
           <a className={styles.primary} href={hrefFor('rebalancer')}>Open the rebalancer</a>
         </section>

@@ -1,5 +1,6 @@
 import type { AssetClass, Targets } from './types'
 
+// The order here is the order asset classes appear everywhere in the UI.
 export const assetClasses: AssetClass[] = ['usEquity', 'intlEquity', 'bonds', 'realEstate', 'cash']
 
 export const assetClassLabels: Record<AssetClass, string> = {
@@ -25,6 +26,7 @@ export interface ModelPortfolio {
   targets: Targets
 }
 
+// Preset target mixes offered in the Targets panel. Each must add up to 100.
 export const modelPortfolios: ModelPortfolio[] = [
   {
     name: 'Conservative',

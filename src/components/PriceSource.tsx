@@ -5,10 +5,14 @@ import styles from './PriceSource.module.css'
 
 const time = (d: Date) => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
 
-/** Where prices come from: a form to add a quote API key, or the latest update status. */
+/**
+ * Where prices come from: a form to add a quote API key, or the latest update
+ * status. The key is saved only in this browser's localStorage (see
+ * useLivePrices) and sent only to the quote provider.
+ */
 export function PriceSource({ prices }: { prices: LivePrices }) {
   const { apiKey, setApiKey, status } = prices
-  const [draft, setDraft] = useState('')
+  const [draft, setDraft] = useState('') // the key as typed, before Save
 
   if (!apiKey) {
     return (

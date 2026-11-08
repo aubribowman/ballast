@@ -3,14 +3,18 @@ import { fetchPrices } from '../domain/quotes'
 import { lookupTicker } from '../domain/tickers'
 import { usePortfolio } from './usePortfolio'
 
+// The person's own API key, kept only in this browser. Never commit a key to the repo.
 const KEY_STORAGE = 'ballast:quote-api-key'
 /** Wait for typing to settle so "V", "VT", "VTI" doesn't cost three lookups. */
 const TYPING_DELAY_MS = 900
 
+/** What the price controls show: loading, last update, and any problems. */
 export interface PriceStatus {
   loading: boolean
   updatedAt?: Date
+  /** Tickers the provider had no price for. */
   missing: string[]
+  /** A problem with the whole request, such as a bad key. */
   error?: string
 }
 
@@ -29,6 +33,14 @@ function quotedTickers(tickers: string[]): string[] {
     .sort()
 }
 
+/**
+ * Keeps holding prices up to date from the quote API (domain/quotes.ts) once
+ * the person adds a key. Prices are written into the portfolio with the
+ * `setPrices` action, so the rest of the app doesn't know where they came from.
+ *
+ * Returns the key, a setter for it, the current status, and `refresh` for
+ * the "Update prices" button.
+ */
 export function useLivePrices() {
   const { portfolio, dispatch } = usePortfolio()
   const [apiKey, setKeyState] = useState(readKey)
@@ -36,6 +48,7 @@ export function useLivePrices() {
   // Tickers already priced this visit, so the automatic pass skips them.
   const priced = useRef(new Set<string>())
 
+  // A string, so the effect below only re-runs when the set of tickers changes.
   const tickers = quotedTickers(portfolio.holdings.map(h => h.ticker))
   const tickersKey = tickers.join(',')
 
@@ -74,6 +87,7 @@ export function useLivePrices() {
     }
   }, [tickersKey, apiKey, load])
 
+  // Manual refresh re-prices everything, not just new tickers.
   const refresh = useCallback(() => load(tickersKey ? tickersKey.split(',') : []), [load, tickersKey])
 
   const setApiKey = useCallback((key: string) => {
@@ -84,6 +98,7 @@ export function useLivePrices() {
     } catch {
       // Without storage the key lasts until the page is closed.
     }
+    // A new key starts fresh: price everything again.
     priced.current.clear()
     setStatus({ loading: false, missing: [] })
     setKeyState(trimmed)

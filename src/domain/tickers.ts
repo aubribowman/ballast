@@ -1,5 +1,6 @@
 import type { AssetClass, Holding } from './types'
 
+/** What we know about a ticker without looking it up online. */
 export interface KnownTicker {
   name: string
   assetClass: AssetClass
@@ -10,10 +11,14 @@ export interface KnownTicker {
 /**
  * Common funds and stocks, so typing a ticker can fill in its name and
  * asset class. Built in rather than fetched: no API key, works offline,
- * and nothing about the portfolio leaves the browser. Prices stay manual.
+ * and nothing about the portfolio leaves the browser. Prices come from
+ * quotes.ts or are typed in; they aren't stored here.
+ *
+ * To add a fund, add it to the right `add(...)` call below.
  */
 const directory: Record<string, KnownTicker> = {}
 
+/** Adds a group of tickers that share an asset class (and a fixed price, for money market funds). */
 function add(assetClass: AssetClass, entries: Record<string, string>, fixedPrice?: number) {
   for (const [ticker, name] of Object.entries(entries)) {
     directory[ticker] = fixedPrice ? { name, assetClass, fixedPrice } : { name, assetClass }
@@ -133,10 +138,12 @@ add('cash', {
   USFR: 'WisdomTree Floating Rate Treasury Fund',
 })
 
+/** Every known ticker, A–Z. Feeds the ticker autocomplete list. */
 export const knownTickers = Object.entries(directory)
   .map(([ticker, info]) => ({ ticker, ...info }))
   .sort((a, b) => a.ticker.localeCompare(b.ticker))
 
+/** Finds a ticker, ignoring case and spaces. */
 export function lookupTicker(ticker: string): KnownTicker | undefined {
   return directory[ticker.trim().toUpperCase()]
 }
@@ -154,6 +161,7 @@ export function tickerChanges(holding: Holding, ticker: string): Partial<Omit<Ho
   const match = lookupTicker(ticker)
   if (match) {
     const changes = { ticker, name: match.name, assetClass: match.assetClass }
+    // Money market funds: fill in the $1.00 price and cost too.
     return match.fixedPrice ? { ...changes, price: match.fixedPrice, costBasis: match.fixedPrice } : changes
   }
   // Typed past a match (VT -> VTX): clear the name we filled in.

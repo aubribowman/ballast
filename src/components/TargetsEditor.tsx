@@ -6,11 +6,14 @@ import { NumberInput } from './NumberInput'
 import { Panel } from './Panel'
 import styles from './TargetsEditor.module.css'
 
+/** The "Target mix" panel: preset model portfolios plus a percent field per asset class. */
 export function TargetsEditor() {
   const { portfolio, dispatch } = usePortfolio()
   const { targets } = portfolio
   const total = targetsTotal(targets)
+  // Small tolerance for decimals like 33.33 + 33.33 + 33.34.
   const balanced = Math.abs(total - 100) <= 0.01
+  // Highlights a preset button when the targets still match it exactly.
   const activeModel = modelPortfolios.find(m => assetClasses.every(c => m.targets[c] === targets[c]))
 
   return (

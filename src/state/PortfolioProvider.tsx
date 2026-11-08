@@ -5,8 +5,10 @@ import { PortfolioContext } from './portfolioContext'
 import { portfolioReducer } from './portfolioReducer'
 import { samplePortfolio } from './samplePortfolio'
 
+// Bump the version if the saved shape changes in a way old data can't load.
 const STORAGE_KEY = 'ballast:portfolio:v1'
 
+/** The portfolio saved in this browser, or the sample on a first visit. */
 function loadSaved(): Portfolio {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -17,6 +19,11 @@ function loadSaved(): Portfolio {
   return samplePortfolio()
 }
 
+/**
+ * Holds the portfolio for the whole app, saves it to localStorage on every
+ * change, and works out the rebalancing plan. Tests pass `initial` to start
+ * from a known portfolio instead of whatever is saved.
+ */
 export function PortfolioProvider({ children, initial }: { children: ReactNode; initial?: Portfolio }) {
   // Lazy initializer: reads storage once on mount, not on every render.
   const [portfolio, dispatch] = useReducer(portfolioReducer, initial, init => init ?? loadSaved())
@@ -36,6 +43,7 @@ export function PortfolioProvider({ children, initial }: { children: ReactNode; 
     [portfolio],
   )
 
+  // A stable object, so components only re-render when the portfolio changes.
   const value = useMemo(() => ({ portfolio, plan, dispatch }), [portfolio, plan])
 
   return <PortfolioContext.Provider value={value}>{children}</PortfolioContext.Provider>

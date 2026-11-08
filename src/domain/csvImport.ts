@@ -70,6 +70,11 @@ export function parseNumber(raw: string | undefined): number {
   return negative ? -n : n
 }
 
+/**
+ * Which column holds each field, by matching header names against
+ * `columnNames`. A column can only be used once, so "Price" isn't also
+ * taken as the cost column.
+ */
 function findColumns(header: string[]): Partial<Record<Field, number>> {
   const normalized = header.map(normalize)
   const found: Partial<Record<Field, number>> = {}
@@ -85,6 +90,10 @@ function findColumns(header: string[]): Partial<Record<Field, number>> {
   return found
 }
 
+/**
+ * For tickers not in tickers.ts: a best guess at the asset class from the
+ * fund's name. The import preview flags these so the person can check them.
+ */
 function guessClass(name: string): AssetClass {
   const n = name.toLowerCase()
   if (/money market|cash reserve|government cash/.test(n)) return 'cash'
@@ -96,6 +105,10 @@ function guessClass(name: string): AssetClass {
 
 const isBlank = (row: string[]) => row.every(c => c.trim() === '')
 
+/**
+ * Turns a brokerage positions export (or our template) into holdings.
+ * Returns `error` instead of holdings when the needed columns can't be found.
+ */
 export function importHoldingsCsv(text: string): ImportResult {
   const rows = parseCsv(text)
   // Exports often start with a title or account lines, so look for the header.
@@ -196,6 +209,7 @@ export function combine<T extends Omit<Holding, 'id'>>(a: T, b: Omit<Holding, 'i
 
 const round = (n: number, digits: number) => Math.round(n * 10 ** digits) / 10 ** digits
 
+/** The example file offered as "Download template" in the import dialog. */
 export const IMPORT_TEMPLATE = [
   'Symbol,Description,Quantity,Average Cost,Price',
   'VTI,Vanguard Total Stock Market ETF,120,214.60,286.40',

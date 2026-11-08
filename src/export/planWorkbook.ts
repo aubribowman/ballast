@@ -30,6 +30,7 @@ const brand = {
   white: 'FFFFFFFF',
 }
 
+// Asset class colors, matching the --class-* tokens in index.css (light theme).
 const classColor: Record<AssetClass, string> = {
   usEquity: 'FF1D4079',
   intlEquity: 'FF2F8A86',
@@ -42,6 +43,7 @@ const classColor: Record<AssetClass, string> = {
 const SERIF = 'Georgia'
 const SANS = 'Calibri'
 
+// Excel number formats. The part after ';' is used for negative numbers.
 const fmt = {
   usd: '$#,##0;-$#,##0',
   usdCents: '$#,##0.00;-$#,##0.00',
@@ -53,6 +55,7 @@ const fmt = {
   signedPts: '+0.0" pts";-0.0" pts";0.0" pts"',
 }
 
+// Small style helpers so the sheet code stays readable.
 const solid = (argb: string): Fill => ({ type: 'pattern', pattern: 'solid', fgColor: { argb } })
 const font = (over: Partial<Font> = {}): Partial<Font> => ({ name: SANS, size: 10, color: { argb: brand.ink }, ...over })
 const line = (argb: string, style: 'thin' | 'medium' = 'thin') => ({ style, color: { argb } })
@@ -86,6 +89,11 @@ export async function buildPlanWorkbook({ plan, portfolio, date = new Date() }: 
   return wb
 }
 
+/**
+ * Builds the workbook and saves it as ballast-rebalancing-plan-<date>.xlsx.
+ * Called from the "Export to Excel" button in TradeList, which loads this
+ * file on demand because ExcelJS is large.
+ */
 export async function downloadPlanWorkbook(input: PlanWorkbookInput) {
   const wb = await buildPlanWorkbook(input)
   const buffer = await wb.xlsx.writeBuffer()
@@ -98,6 +106,7 @@ export async function downloadPlanWorkbook(input: PlanWorkbookInput) {
   URL.revokeObjectURL(url)
 }
 
+/** Shared sheet setup: no gridlines, prints landscape one page wide, with a page-number footer. */
 function sheetOptions(title: string) {
   return {
     views: [{ showGridLines: false }],
@@ -163,6 +172,7 @@ function masthead(ws: Worksheet, width: number, subtitle: string, date: Date): n
   return 4
 }
 
+/** A small bold heading with a rule under it. Returns the next free row. */
 function sectionTitle(ws: Worksheet, row: number, width: number, text: string): number {
   ws.getRow(row).height = 26
   for (let c = 1; c <= width; c++) ws.getCell(row, c).border = { bottom: line(brand.ruleStrong) }
@@ -173,6 +183,7 @@ function sectionTitle(ws: Worksheet, row: number, width: number, text: string): 
   return row + 1
 }
 
+/** Navy header row. Columns from `numericFrom` (1-based) on are right-aligned for numbers. */
 function tableHeader(ws: Worksheet, row: number, headers: string[], numericFrom: number) {
   headers.forEach((h, i) => {
     const cell = ws.getCell(row, i + 1)
@@ -184,6 +195,7 @@ function tableHeader(ws: Worksheet, row: number, headers: string[], numericFrom:
   ws.getRow(row).height = 22
 }
 
+/** Borders and optional zebra striping for one table row. */
 function bodyRow(ws: Worksheet, row: number, width: number, striped: boolean) {
   ws.getRow(row).height = 20
   for (let c = 1; c <= width; c++) {
@@ -195,6 +207,7 @@ function bodyRow(ws: Worksheet, row: number, width: number, striped: boolean) {
   }
 }
 
+/** A gain or loss: green when positive, red when negative, a dash when unknown. */
 function signed(cell: Cell, value: number | undefined, format: string) {
   if (value === undefined) {
     cell.value = '—'
@@ -208,6 +221,7 @@ function signed(cell: Cell, value: number | undefined, format: string) {
   cell.font = font({ bold: true, color: { argb: color } })
 }
 
+/** The "not investment advice" note at the bottom of each sheet. */
 function disclosure(ws: Worksheet, row: number, width: number) {
   const last = String.fromCharCode(64 + width)
   ws.mergeCells(`A${row}:${last}${row + 1}`)
@@ -219,6 +233,7 @@ function disclosure(ws: Worksheet, row: number, width: number) {
   cell.alignment = { wrapText: true, vertical: 'top' }
 }
 
+/** Sheet 1: summary numbers, then the suggested trades (sells first) and totals. */
 function planSheet(ws: Worksheet, plan: Plan, portfolio: Portfolio, date: Date) {
   const W = 8
   ws.columns = [
@@ -367,6 +382,7 @@ function planSheet(ws: Worksheet, plan: Plan, portfolio: Portfolio, date: Date) 
   disclosure(ws, r, W)
 }
 
+/** Sheet 2: every holding with value, cost and gain, plus a totals row. */
 function holdingsSheet(ws: Worksheet, portfolio: Portfolio, date: Date) {
   const W = 9
   ws.columns = [
@@ -428,6 +444,7 @@ function holdingsSheet(ws: Worksheet, portfolio: Portfolio, date: Date) {
   disclosure(ws, r + 2, W)
 }
 
+/** Sheet 3: each asset class now vs. target, with drift highlighted when outside the band. */
 function allocationSheet(ws: Worksheet, plan: Plan, date: Date) {
   const W = 6
   ws.columns = [{ width: 3 }, { width: 26 }, { width: 13 }, { width: 13 }, { width: 14 }, { width: 13 }]

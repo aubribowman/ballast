@@ -25,9 +25,11 @@ export function NumberInput({ value, onValueChange, onBlur, onFocus, ...rest }: 
         onFocus?.(e)
       }}
       onChange={e => {
+        // Digits and a decimal point only. Negative numbers aren't needed anywhere.
         const next = e.target.value.replace(/[^0-9.]/g, '')
         setDraft(next)
         const parsed = Number(next)
+        // "1.2.3" isn't a number: keep the text but don't send it up.
         if (!Number.isNaN(parsed)) onValueChange(next === '' ? 0 : parsed)
       }}
       onBlur={e => {
@@ -38,4 +40,5 @@ export function NumberInput({ value, onValueChange, onBlur, onFocus, ...rest }: 
   )
 }
 
+// 0 shows as an empty field, so the placeholder appears instead.
 const format = (n: number) => (n === 0 ? '' : String(n))

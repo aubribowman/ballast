@@ -13,8 +13,10 @@ export function DriftChart() {
   if (!plan.ok) return <p className={styles.blocked}>{plan.error}</p>
 
   const band = portfolio.settings.bandPct
+  // Scale the track to the largest drift (at least ±10 pts) so every dot fits.
   const largest = Math.max(...plan.current.map(c => Math.abs(c.driftPct)), band)
   const range = Math.max(10, Math.ceil(largest + 2))
+  // Drift in points → left offset along the track, with target at 50%.
   const position = (drift: number) => `${50 + (Math.max(-range, Math.min(range, drift)) / range) * 50}%`
   const showAfter = plan.trades.length > 0
 

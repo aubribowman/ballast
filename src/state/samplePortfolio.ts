@@ -1,6 +1,7 @@
 import { modelPortfolios } from '../domain/assetClasses'
 import type { Portfolio } from '../domain/types'
 
+// The portfolio shown on first visit and after "Load sample".
 // Prices and costs are illustrative, not live quotes.
 export function samplePortfolio(): Portfolio {
   return {

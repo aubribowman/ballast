@@ -9,6 +9,11 @@ import { FundSuggestions } from './FundSuggestions'
 import { Panel } from './Panel'
 import styles from './TradeList.module.css'
 
+/**
+ * The "Suggested trades" panel: the plan's trades (sells first), totals,
+ * estimated realized gains, export buttons, and fund suggestions for asset
+ * classes with nothing to buy.
+ */
 export function TradeList({ livePrices = false }: { livePrices?: boolean }) {
   const { plan, portfolio } = usePortfolio()
   const [exporting, setExporting] = useState(false)
@@ -25,6 +30,7 @@ export function TradeList({ livePrices = false }: { livePrices?: boolean }) {
   const buys = plan.trades.filter(t => t.action === 'Buy')
   const sold = sells.reduce((s, t) => s + t.amount, 0)
   const holdingFor = (id: string) => portfolio.holdings.find(h => h.id === id)
+  // Estimated gain per sell, by holding id. undefined when the cost isn't known.
   const realized = new Map(
     sells.map(t => {
       const h = holdingFor(t.holdingId)
@@ -148,6 +154,7 @@ export function TradeList({ livePrices = false }: { livePrices?: boolean }) {
   )
 }
 
+/** The "Est. gain" cell: only sells realize a gain, and only if the cost is known. */
 function GainCell({ action, gain }: { action: string; gain: number | undefined }) {
   if (action !== 'Sell') return <td className={`${styles.num} ${styles.muted}`}>—</td>
   if (gain === undefined) return <td className={`${styles.num} ${styles.muted}`} title="Add an average cost to estimate">No cost</td>
