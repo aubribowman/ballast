@@ -1,4 +1,4 @@
-.wrap { overflow-x: auto; margin: 0 -0.5rem; }
+.wrap { position: relative; overflow-x: auto; margin: 0 -0.5rem; }
 
 .table {
   width: 100%;
@@ -44,7 +44,9 @@
 .table input[aria-invalid] { border-color: var(--loss); }
 
 .ticker { font-weight: 600; width: 4.75rem !important; }
+.ticker::-webkit-calendar-picker-indicator { display: none !important; }
 .table td:nth-child(2) input { min-width: 12.5rem; }
+.table th:nth-child(2) { width: 30%; }
 .table td:nth-child(3) select { min-width: 11rem; }
 
 .num { text-align: right !important; }
@@ -73,6 +75,40 @@
   margin: 1rem 0 0;
   padding-top: 0.875rem;
   border-top: 1px solid var(--rule);
+  margin-bottom: 0;
   font-size: 0.8125rem;
   color: var(--ink-muted);
+}
+
+.gain { white-space: nowrap; font-variant-numeric: tabular-nums; padding-left: 1rem !important; }
+.gain span { font-weight: 600; }
+.gain small { display: block; font-size: 0.75rem; color: var(--ink-muted); }
+.gain[data-sign='1'] span, .gain[data-sign='1'] small { color: var(--gain); }
+.gain[data-sign='-1'] span, .gain[data-sign='-1'] small { color: var(--loss); }
+.unknown { color: var(--ink-faint); font-weight: 400 !important; }
+
+.table tfoot th,
+.table tfoot td {
+  padding: 0.625rem 0.5rem;
+  border-top: 1px solid var(--rule-strong);
+  background: var(--surface-alt);
+}
+
+.table tfoot th {
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--accent-text);
+  text-decoration: underline;
+  cursor: pointer;
 }

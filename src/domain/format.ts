@@ -13,3 +13,16 @@ export function formatDrift(n: number): string {
   if (Number(abs) === 0) return '0.0 pts'
   return `${n > 0 ? '+' : '−'}${abs} pts`
 }
+
+/** A dollar change with an explicit sign: +$1,234 or −$560. */
+export function formatSignedUsd(n: number): string {
+  const rounded = Math.round(n)
+  if (rounded === 0) return '$0'
+  return `${rounded > 0 ? '+' : '−'}${usd.format(Math.abs(rounded))}`
+}
+
+/** A percent change with an explicit sign: +12.3% or −4.0%. */
+export function formatSignedPct(n: number): string {
+  const v = Math.abs(n) < 0.05 ? 0 : n
+  return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}%`
+}

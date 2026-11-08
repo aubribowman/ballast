@@ -4,6 +4,7 @@ import { formatPct } from '../domain/format'
 import type { AssetClass } from '../domain/types'
 import { usePortfolio } from '../state/usePortfolio'
 import { Panel } from './Panel'
+import styles from './AllocationBars.module.css'
 
 type Row = { name: string } & Record<AssetClass, number>
 
@@ -22,40 +23,51 @@ export function AllocationBars() {
 
   return (
     <Panel title="Mix at a glance" id="mix-title">
-      <div style={{ height: data.length * 44 + 8 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="vertical" margin={{ top: 0, right: 4, bottom: 0, left: 0 }} barCategoryGap={10}>
-            <XAxis type="number" domain={[0, 100]} hide />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={52}
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: 'var(--ink-muted)', fontSize: 13 }}
-            />
-            <Tooltip
-              cursor={{ fill: 'var(--bg)' }}
-              formatter={(value, key) => [formatPct(Number(value)), assetClassLabels[key as AssetClass]]}
-              contentStyle={{
-                background: 'var(--surface)',
-                border: '1px solid var(--rule)',
-                borderRadius: 4,
-                fontSize: 13,
-              }}
-            />
-            {assetClasses.map((c, i) => (
-              <Bar
-                key={c}
-                dataKey={c}
-                stackId="mix"
-                fill={assetClassColors[c]}
-                isAnimationActive={false}
-                radius={i === 0 ? [2, 0, 0, 2] : i === assetClasses.length - 1 ? [0, 2, 2, 0] : 0}
+      {/* Centered, so a panel stretched to match the sidebar stays balanced. */}
+      <div className={styles.figure}>
+        <div style={{ height: data.length * 44 + 8 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} layout="vertical" margin={{ top: 0, right: 4, bottom: 0, left: 0 }} barCategoryGap={10}>
+              <XAxis type="number" domain={[0, 100]} hide />
+              <YAxis
+                type="category"
+                dataKey="name"
+                width={52}
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: 'var(--ink-muted)', fontSize: 13 }}
               />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
+              <Tooltip
+                cursor={{ fill: 'var(--bg)' }}
+                formatter={(value, key) => [formatPct(Number(value)), assetClassLabels[key as AssetClass]]}
+                contentStyle={{
+                  background: 'var(--surface)',
+                  border: '1px solid var(--rule)',
+                  borderRadius: 4,
+                  fontSize: 13,
+                }}
+              />
+              {assetClasses.map((c, i) => (
+                <Bar
+                  key={c}
+                  dataKey={c}
+                  stackId="mix"
+                  fill={assetClassColors[c]}
+                  isAnimationActive={false}
+                  radius={i === 0 ? [2, 0, 0, 2] : i === assetClasses.length - 1 ? [0, 2, 2, 0] : 0}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <ul className={styles.legend} aria-label="Asset classes">
+          {assetClasses.map(c => (
+            <li key={c}>
+              <span className={styles.swatch} style={{ background: assetClassColors[c] }} />
+              {assetClassLabels[c]}
+            </li>
+          ))}
+        </ul>
       </div>
     </Panel>
   )

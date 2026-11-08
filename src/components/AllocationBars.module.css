@@ -1,0 +1,26 @@
+.figure { margin-block: auto; }
+
+.legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin: 0;
+  padding: 1rem 0 0 3.25rem;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.legend li { display: flex; align-items: center; gap: 0.5rem; }
+
+.swatch {
+  width: 0.25rem;
+  height: 0.875rem;
+  border-radius: 1px;
+}
+
+@media (max-width: 600px) {
+  .figure { margin-block: auto; }
+
+.legend { padding-left: 0; }
+}

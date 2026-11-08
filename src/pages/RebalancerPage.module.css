@@ -54,20 +54,41 @@
   background: var(--ink-faint);
 }
 
+.liveDot[data-live] { background: var(--gain); box-shadow: 0 0 0 3px var(--gain-wash); }
+
+/* Both columns run to the same line: the last panel in each one stretches,
+   so a short trade list never leaves a gap beside the sidebar. */
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 21rem;
   gap: 1.25rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 .main,
 .side {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 1.25rem;
   min-width: 0;
 }
+
+.main > *,
+.side > * { flex: none; }
+
+.main > :last-child,
+.side > :last-child { flex: 1 1 auto; }
+
+/* The movable mix chart: its panel fills the slot when the slot stretches. */
+.slot { display: flex; flex-direction: column; }
+.slot > * { flex: 1 1 auto; }
+
+/* Set for an instant while measuring natural heights. */
+.measuring { align-items: start; }
+.measuring .main > *,
+.measuring .side > * { flex: none !important; }
+
+.full { margin-top: 1.25rem; }
 
 @media (max-width: 960px) {
   .grid { grid-template-columns: 1fr; }

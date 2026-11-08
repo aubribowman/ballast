@@ -7,6 +7,8 @@ export interface Holding {
   assetClass: AssetClass
   shares: number
   price: number
+  /** Average cost per share. 0 or missing means unknown. */
+  costBasis?: number
 }
 
 /** Target weight for each asset class, in percent (0–100). */

@@ -1,4 +1,4 @@
-import { assetClasses, assetClassLabels } from './assetClasses'
+import { assetClasses } from './assetClasses'
 import type { AssetClass, Holding, Settings, Targets } from './types'
 
 export interface ClassAllocation {
@@ -30,6 +30,8 @@ export type RebalancePlan =
       leftoverCash: number
       needsRebalance: boolean
       warnings: string[]
+      /** Money a class should get but can't, because nothing in it is held. */
+      unfilled: { assetClass: AssetClass; amount: number }[]
     }
   | { ok: false; error: string }
 
@@ -89,8 +91,15 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
   if (Math.abs(total - 100) > 0.01) {
     return { ok: false, error: `Targets add up to ${round(total, 2)}%. Adjust them to total 100%.` }
   }
-  if (holdings.some(h => !(h.price > 0))) {
-    return { ok: false, error: 'Every holding needs a price above $0.' }
+  const unpriced = holdings.filter(h => !(h.price > 0))
+  if (unpriced.length) {
+    const named = unpriced.map(h => h.ticker).filter(Boolean)
+    return {
+      ok: false,
+      error: named.length === unpriced.length
+        ? `Enter a price for ${named.join(', ')} in Holdings.`
+        : 'Every holding needs a price above $0.',
+    }
   }
 
   const cash = Math.max(0, settings.cashToInvest || 0)
@@ -99,6 +108,7 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
   const needsRebalance = cash >= MIN_TRADE || current.some(c => c.outsideBand)
 
   const warnings: string[] = []
+  const unfilled: { assetClass: AssetClass; amount: number }[] = []
   const amountByHolding = new Map<string, number>()
 
   if (needsRebalance) {
@@ -127,9 +137,7 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
       const inClass = holdings.filter(h => h.assetClass === c)
       if (inClass.length === 0) {
         // Cash with no money-market holding simply stays as cash.
-        if (c !== 'cash' && delta > 0) {
-          warnings.push(`There’s no ${assetClassLabels[c].toLowerCase()} holding to buy. Add one to reach its target.`)
-        }
+        if (c !== 'cash' && delta > 0) unfilled.push({ assetClass: c, amount: round(delta, 2) })
         continue
       }
       for (const [id, amount] of splitAcross(inClass, delta)) amountByHolding.set(id, amount)
@@ -159,7 +167,7 @@ export function planRebalance(holdings: Holding[], targets: Targets, settings: S
   })
   const projected = allocate(after, targets, leftoverCash, settings.bandPct)
 
-  return { ok: true, totalValue, current, projected, trades, leftoverCash, needsRebalance, warnings }
+  return { ok: true, totalValue, current, projected, trades, leftoverCash, needsRebalance, warnings, unfilled }
 }
 
 export function round(n: number, digits: number): number {

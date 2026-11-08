@@ -62,16 +62,20 @@ describe('planRebalance', () => {
     expect(result.trades.some(t => !Number.isInteger(t.shares))).toBe(true)
   })
 
-  it('warns when a class has a target but nothing to buy', () => {
+  it('reports how much a class with a target but no holding should get', () => {
     const result = plan({}, holdings, { usEquity: 50, intlEquity: 20, bonds: 30, realEstate: 0, cash: 0 })
-    expect(result.warnings).toEqual([
-      'There’s no international stocks holding to buy. Add one to reach its target.',
-    ])
+    expect(result.unfilled).toEqual([{ assetClass: 'intlEquity', amount: 2000 }])
+  })
+
+  it('names the holdings that still need a price', () => {
+    const result = planRebalance([{ ...holdings[0], price: 0 }, holdings[1]], sixtyForty, settings)
+    expect(result).toEqual({ ok: false, error: 'Enter a price for US in Holdings.' })
   })
 
   it('keeps cash uninvested when the cash target has no money-market holding', () => {
     const result = plan({ cashToInvest: 1000 }, holdings, { usEquity: 55, intlEquity: 0, bonds: 36, realEstate: 0, cash: 9 })
     expect(result.warnings).toEqual([])
+    expect(result.unfilled).toEqual([])
     expect(result.leftoverCash).toBeGreaterThan(900)
   })
 })

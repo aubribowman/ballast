@@ -11,6 +11,26 @@ describe('portfolioReducer', () => {
     expect(before.holdings[0].shares).toBe(120) // the old state wasn't mutated
   })
 
+  it('applies prices to holdings by ticker', () => {
+    const after = portfolioReducer(samplePortfolio(), { type: 'setPrices', prices: { VTI: 300, BND: 70 } })
+    expect(after.holdings.find(h => h.ticker === 'VTI')!.price).toBe(300)
+    expect(after.holdings.find(h => h.ticker === 'BND')!.price).toBe(70)
+    expect(after.holdings.find(h => h.ticker === 'VNQ')!.price).toBe(88.2)
+  })
+
+  it('imports holdings by replacing or adding, combining matching tickers', () => {
+    const incoming = [
+      { ticker: 'VTI', name: '', assetClass: 'usEquity' as const, shares: 30, price: 300, costBasis: 250 },
+      { ticker: 'AAPL', name: 'Apple Inc.', assetClass: 'usEquity' as const, shares: 5, price: 200, costBasis: 150 },
+    ]
+    const replaced = portfolioReducer(samplePortfolio(), { type: 'importHoldings', holdings: incoming, mode: 'replace' })
+    expect(replaced.holdings.map(h => h.ticker)).toEqual(['VTI', 'AAPL'])
+
+    const added = portfolioReducer(samplePortfolio(), { type: 'importHoldings', holdings: incoming, mode: 'add' })
+    expect(added.holdings).toHaveLength(6)
+    expect(added.holdings.find(h => h.ticker === 'VTI')).toMatchObject({ shares: 150, price: 300 })
+  })
+
   it('adds and removes holdings', () => {
     const added = portfolioReducer(samplePortfolio(), { type: 'addHolding' })
     expect(added.holdings).toHaveLength(6)

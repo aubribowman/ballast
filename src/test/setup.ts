@@ -13,3 +13,8 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 }
+
+// jsdom has no scrolling; the router scrolls to the top on page changes,
+// and adding a suggested fund scrolls to its price.
+window.scrollTo = () => {}
+Element.prototype.scrollIntoView ??= () => {}

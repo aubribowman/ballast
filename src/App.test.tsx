@@ -5,10 +5,10 @@ import App from './App'
 import { PortfolioProvider } from './state/PortfolioProvider'
 import { samplePortfolio } from './state/samplePortfolio'
 
-function renderApp() {
+function renderApp(initial = samplePortfolio()) {
   window.location.hash = '#/rebalancer'
   render(
-    <PortfolioProvider initial={samplePortfolio()}>
+    <PortfolioProvider initial={initial}>
       <App />
     </PortfolioProvider>,
   )
@@ -41,5 +41,21 @@ describe('App', () => {
     await user.type(bonds, '10')
     expect(screen.getByText('Targets add up to 93%. Adjust them to total 100%.')).toBeInTheDocument()
     expect(tradesTable()).toBeNull()
+  })
+
+  it('suggests funds for a target class with no holding and adds one', async () => {
+    const portfolio = samplePortfolio()
+    portfolio.holdings = portfolio.holdings.filter(h => h.assetClass !== 'realEstate')
+    const user = renderApp(portfolio)
+
+    const suggestions = screen.getByRole('region', { name: 'Funds to consider' })
+    expect(within(suggestions).getByText('Real estate')).toBeInTheDocument()
+
+    await user.click(within(suggestions).getByRole('button', { name: /Add VNQ/ }))
+    expect(screen.getByText('Enter a price for VNQ in Holdings.')).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Price of VNQ'), '90')
+    expect(screen.queryByRole('region', { name: 'Funds to consider' })).not.toBeInTheDocument()
+    expect(within(tradesTable()!).getByText('VNQ')).toBeInTheDocument()
   })
 })

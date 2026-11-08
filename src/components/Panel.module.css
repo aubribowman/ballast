@@ -1,4 +1,6 @@
 .panel {
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
@@ -24,9 +26,16 @@
   color: var(--ink);
 }
 
+/* A column, so a panel stretched to fill its column can push content
+   (a total, a legend) to the bottom with margin-top: auto. */
 .body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
   padding: 1.125rem 1.25rem 1.25rem;
 }
+
+.body > * { flex: none; }
 
 .actions {
   display: flex;

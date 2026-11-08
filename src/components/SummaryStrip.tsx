@@ -1,4 +1,5 @@
-import { formatUsd } from '../domain/format'
+import { formatSignedPct, formatSignedUsd, formatUsd } from '../domain/format'
+import { portfolioGain } from '../domain/gains'
 import { usePortfolio } from '../state/usePortfolio'
 import styles from './SummaryStrip.module.css'
 
@@ -8,6 +9,7 @@ export function SummaryStrip() {
 
   const outside = plan.current.filter(c => c.outsideBand).length
   const band = portfolio.settings.bandPct
+  const gain = portfolioGain(portfolio.holdings)
 
   let status: string
   if (outside === 0 && !plan.needsRebalance) status = 'On target'
@@ -19,6 +21,21 @@ export function SummaryStrip() {
       <div>
         <dt>Portfolio value</dt>
         <dd className={styles.big}>{formatUsd(plan.totalValue)}</dd>
+      </div>
+      <div>
+        <dt>Unrealized gain/loss</dt>
+        <dd className={styles.gain} data-sign={gain ? Math.sign(Math.round(gain.amount)) : undefined}>
+          {gain ? (
+            <>
+              {formatSignedUsd(gain.amount)} <small>{formatSignedPct(gain.pct)}</small>
+            </>
+          ) : (
+            <span className={styles.muted}>Add average costs</span>
+          )}
+        </dd>
+        {gain && gain.missing > 0 && (
+          <p className={styles.footnote}>Leaves out {gain.missing} without a cost</p>
+        )}
       </div>
       <div>
         <dt>Status</dt>
